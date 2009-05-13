@@ -18,6 +18,7 @@
 #include "ipwidget.h"
 
 #include <kmenubar.h>
+#include <kpopupmenu.h>
 #include <kiconloader.h>
 
 #include <iostream.h>

@@ -1,0 +1,22 @@
+2002-04-18  Kyle VanderBeek  <kylev@synack2.corp.yaga.com>
+
+	* ChangeLog:
+	Hey, neat, emacs has Change Log mode.  I have no idea how to use it
+
+	* TODO, Makefile.am, AUTHORS:
+	Adding some docs, increment to the 0.2 version number for further work
+
+	* kipcalc/kipcalc.cpp: Missing #include, from Kevin Degraaf
+
+2002-04-17  Kyle VanderBeek  <kylev@synack2.corp.yaga.com>
+
+	* kipcalc.kdevprj: I dont't use kdevelop
+
+	* kipcalc.lsm, configure.in.in: Updated to version 0.2
+
+2002-04-17  Kyle VanderBeek  <kylev@synack2.corp.yaga.com>
+
+	* Initial release
+
+
+	

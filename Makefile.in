@@ -228,7 +228,7 @@ x_libraries = @x_libraries@
 
 SUBDIRS = kipcalc po doc 
 
-EXTRA_DIST = kipcalc.kdevprj admin AUTHORS COPYING ChangeLog INSTALL README TODO kipcalc.lsm 
+EXTRA_DIST = admin AUTHORS COPYING ChangeLog INSTALL README TODO kipcalc.lsm 
 
 ####### kdevelop will overwrite this part!!! (end)############
 # not a GNU package. You can remove this line, if 
@@ -247,7 +247,7 @@ DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
 
 #>- DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 #>+ 4
-KDE_DIST=Makefile.dist subdirs configure.in.in kipcalc-0.1.tar.gz configure.files 
+KDE_DIST=Makefile.dist subdirs configure.in.in configure.files 
 
 DISTFILES= $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
 

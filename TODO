@@ -1,1 +1,6 @@
+TODO:
+- spinner to increment/decrement netmask
+- display CIDR format of netmask
+- error dialogs when you enter a bad IP or netmask
+- add context help for all displayed fields
 
