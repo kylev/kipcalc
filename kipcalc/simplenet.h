@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: simplenet.h,v 1.9 2002/04/20 20:51:34 kylev Exp $
+  $Id: simplenet.h,v 1.11 2002/04/21 02:47:00 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,6 +23,7 @@ class SimpleNet {
  public:
   SimpleNet() { _ip = _mask = 0; _isCIDR = true; };
   SimpleNet(const string&, const string&);
+  SimpleNet(const string&, int);
   // Destructor not needed
 
   void setIP(int, int, int, int);
@@ -38,6 +39,7 @@ class SimpleNet {
   string getNetmaskDotted() const { return toDotted(_mask); };
   string getNetmaskBinary() const { return toBinary(_mask); };
   string getNetmaskCIDR() const { return toCIDR(_mask); };
+  int getNetmaskCIDRInt() const { return toCIDRInt(_mask); };
   string getNetworkDotted() const { return toDotted(_ip & _mask); };
   string getNetworkBinary() const { return toBinary(_ip & _mask); };
   string getRevMaskDotted() const { return toDotted(~_mask); };
@@ -49,6 +51,7 @@ class SimpleNet {
   string toDotted(u_int32_t) const;
   string toBinary(u_int32_t) const;
   string toCIDR(u_int32_t) const;
+  int toCIDRInt(u_int32_t) const;
   
   u_int32_t _ip;
   u_int32_t _mask;

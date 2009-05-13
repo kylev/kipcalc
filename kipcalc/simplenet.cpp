@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: simplenet.cpp,v 1.7 2002/04/20 20:51:32 kylev Exp $
+  $Id: simplenet.cpp,v 1.9 2002/04/21 02:46:57 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -22,6 +22,12 @@ SimpleNet::SimpleNet(const string &ip, const string &netmask) {
   // Best effort to set, not recommended since I can't return a bool
   setIP(ip);
   setNetmask(netmask);
+}
+
+SimpleNet::SimpleNet(const string &ip, int nm) {
+  // Best effort to set, not recommended since I can't return a bool
+  setIP(ip);
+  setNetmask(nm);
 }
 
 void SimpleNet::setIP(int o1, int o2, int o3, int o4) {
@@ -65,7 +71,13 @@ bool SimpleNet::setNetmask(const int nm) {
   // FIXME this should actually convert from CIDR
   if (nm < 0 || nm > 32)
     return false;
-  _mask = nm;
+
+  for (int i = _mask = 0; i < 32; i++) {
+    _mask = (_mask << 1);
+    if (i < nm)
+      _mask++;
+  }
+
   _isCIDR = true;
   return true;
 }
@@ -156,16 +168,22 @@ string SimpleNet::toBinary(u_int32_t u) const
 
 string SimpleNet::toCIDR(u_int32_t u) const
 {
+  ostringstream oss;
+  
+  oss << (int)toCIDRInt(u);
+  return oss.str();
+}
+
+int SimpleNet::toCIDRInt(u_int32_t u) const
+{
   u_int32_t tempmask = 0x80000000;
   int i, cidr = 0;
-  ostringstream oss;
   
   for (i = 0; tempmask; tempmask >>= 1)
     if (tempmask & u)
       cidr++;
   
-  oss << cidr;
-  return oss.str();
+  return cidr;
 }
 
 ostream &operator << (ostream &of, const SimpleNet &sn)

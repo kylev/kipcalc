@@ -238,7 +238,12 @@ CONFIG_CLEAN_FILES =
 DIST_COMMON =  Makefile.am Makefile.in
 
 
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>- DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>+ 4
+KDE_DIST=index.cache.bz2 
+
+DISTFILES= $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
+
 
 TAR = gtar
 GZIP_ENV = --best
@@ -247,9 +252,9 @@ GZIP_ENV = --best
 all: docs-am  all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-#>- 	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
+#>- 	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
 #>+ 2
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
 	cd $(top_srcdir) && perl admin/am_edit doc/en/Makefile.in
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -351,9 +356,8 @@ maintainer-clean: maintainer-clean-am
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
 
-
 #>+ 21
-index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook 
+index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook index.cache.bz2 
 	-@if test -n "$(MEINPROC)"; then echo $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; fi
 
 docs-am: index.cache.bz2
@@ -377,26 +381,26 @@ clean-docs:
 #>+ 13
 install-nls:
 	$(mkinstalldirs) $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc
-	@for base in index.docbook ; do \
+	@for base in index.docbook index.cache.bz2 ; do \
 	  echo $(INSTALL_DATA) $$base $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	  $(INSTALL_DATA) $(srcdir)/$$base $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	done
 
 uninstall-nls:
-	for base in index.docbook ; do \
+	for base in index.docbook index.cache.bz2 ; do \
 	  rm -f $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	done
 
 
 #>+ 5
 distdir-nls:
-	for file in index.docbook ; do \
+	for file in index.docbook index.cache.bz2 ; do \
 	  cp $(srcdir)/$$file $(distdir); \
 	done
 
 #>+ 5
 force-reedit:
-		cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
+		cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
 	cd $(top_srcdir) && perl admin/am_edit doc/en/Makefile.in
 
 

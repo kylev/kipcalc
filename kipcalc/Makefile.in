@@ -298,7 +298,12 @@ CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $
 DIST_COMMON =  Makefile.am Makefile.in
 
 
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>- DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>+ 4
+KDE_DIST=kipcalc 
+
+DISTFILES= $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
+
 
 TAR = gtar
 GZIP_ENV = --best
@@ -311,9 +316,9 @@ all: docs-am  all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .cpp .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-#>- 	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
+#>- 	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
 #>+ 2
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
 	cd $(top_srcdir) && perl admin/am_edit kipcalc/Makefile.in
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -444,6 +449,14 @@ distdir: $(DISTFILES)
 	|| cp -p $$d/$$file $(distdir)/$$file || :; \
 	fi; \
 	done
+ipwidget.moc.o: ipwidget.moc.cpp ipwidget.h simplenet.h
+ipwidget.o: ipwidget.cpp ipwidget.h simplenet.h
+kipcalc.moc.o: kipcalc.moc.cpp kipcalc.h ../config.h
+kipcalc.o: kipcalc.cpp kipcalc.h ../config.h ipwidget.h simplenet.h
+kipcalc_meta_unload.o: kipcalc_meta_unload.cpp
+main.o: main.cpp kipcalc.h ../config.h
+simplenet.o: simplenet.cpp simplenet.h
+
 info-am:
 info: info-am
 dvi-am:
@@ -578,7 +591,6 @@ messages:
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
 
-
 #>+ 3
 kipcalc.moc.cpp: $(srcdir)/kipcalc.h
 	$(MOC) $(srcdir)/kipcalc.h -o kipcalc.moc.cpp
@@ -596,7 +608,7 @@ docs-am:
 
 #>+ 5
 force-reedit:
-		cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
+		cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
 	cd $(top_srcdir) && perl admin/am_edit kipcalc/Makefile.in
 
 
