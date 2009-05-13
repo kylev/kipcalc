@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: simplenet.cpp,v 1.9 2002/04/21 02:46:57 kylev Exp $
+  $Id: simplenet.cpp,v 1.11 2002/04/25 00:59:55 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -12,8 +12,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <sstream>
 
 #include "simplenet.h"
@@ -36,10 +34,10 @@ void SimpleNet::setIP(int o1, int o2, int o3, int o4) {
 
 bool SimpleNet::setIP(const string &s) {
   u_int32_t tempip = 0;
-  string::const_iterator end = s.begin();
-  int dotcount = 0;
 
   // count the number of dots (should be 3)
+  string::const_iterator end = s.begin();
+  int dotcount = 0;
   while (end != s.end()) {
     if (*end == '.')
       dotcount++;
@@ -49,17 +47,21 @@ bool SimpleNet::setIP(const string &s) {
   if (dotcount != 3)
     return false;
 
-  end = s.begin();
+  // FIXME this parsing plugs ahead, we should check iis.bad() and/or iis.eof()
+  istringstream iss(s);
+  int temppart = -1;
+  char dot;
   for (int i = 3; i >= 0; i--) {
-    int temppart = atoi(end);
+    iss >> temppart;
     if (temppart < 0 || temppart > 255)
       return false;
 
     tempip += temppart << (8 * i);
 
-    while (end != s.end() && *end != '.')
-      end++;
-    end++;
+    iss >> dot;
+    if (dot != '.')
+      return false;
+    //    end++;
   }
 
   // Note that we ignore trailing garbage if possible
@@ -85,17 +87,17 @@ bool SimpleNet::setNetmask(const int nm) {
 bool SimpleNet::setNetmask(const string &nm) {
   u_int32_t tempmask = 0;
   int i, j;
-  string::const_iterator c;
 
   // count the number of dots (should be 3)
   int dotcount = 0;
-  for (c = nm.begin(); c != nm.end(); c++)
+  for (string::const_iterator c = nm.begin(); c != nm.end(); c++)
     if (*c == '.')
       dotcount++;
 
+  istringstream iss(nm);
   if (dotcount == 0) {
     // looks like CIDR!
-    tempmask = atoi(nm.c_str());
+    iss >> tempmask;
     if (tempmask >= 0 && tempmask <= 32) {
       _mask = ~0 << (32-tempmask);
       _isCIDR = true;
@@ -104,9 +106,10 @@ bool SimpleNet::setNetmask(const string &nm) {
       return false;
   } else if (dotcount == 3) {
     // dotted notation
-    c = nm.begin();
+    int temppart;
+    char dot;
     for (i = 3; i >= 0; i--) {
-      int temppart = atoi(c);
+      iss >> temppart;
       if (temppart < 0 || temppart > 255)
 	return false;
       
@@ -122,18 +125,17 @@ bool SimpleNet::setNetmask(const string &nm) {
 	break;
 
       // move past the dot
-      while (c != nm.end() && *c != '.')
-	c++;
-      c++;
+      iss >> dot;
+      if (dot != '.')
+        return false;
     }
     
     _mask = ~0 << (32-tempmask);
     _isCIDR = false;
     return true;
-  }    
-
-  // Wrong number of dots
-  return false;
+  } else
+    // Wrong number of dots
+    return false;
 }
 
 string SimpleNet::toDotted(u_int32_t u) const
@@ -144,6 +146,20 @@ string SimpleNet::toDotted(u_int32_t u) const
     ((u & 0xff000000) >> 24) << '.' <<
     ((u & 0xff0000) >> 16) << '.' <<
     ((u & 0xff00) >> 8) << '.' <<
+    (u & 0xff);
+
+  return oss.str();
+}
+
+string SimpleNet::toHex(u_int32_t u) const
+{
+  ostringstream oss;
+
+  // FIXME I'd like to zero-fill to 2 digits
+  oss << hex <<
+    ((u & 0xff000000) >> 24) << ':' <<
+    ((u & 0xff0000) >> 16) << ':' <<
+    ((u & 0xff00) >> 8) << ':' <<
     (u & 0xff);
 
   return oss.str();

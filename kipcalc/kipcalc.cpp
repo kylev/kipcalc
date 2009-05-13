@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: kipcalc.cpp,v 1.13 2002/04/18 02:20:14 kylev Exp $
+  $Id: kipcalc.cpp,v 1.15 2002/04/23 01:04:37 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,8 +19,6 @@
 #include <kpopupmenu.h>
 #include <kiconloader.h>
 
-#include <iostream.h>
-
 Kipcalc::Kipcalc(QWidget *parent, const char *name) : KMainWindow(parent, name)
 {
   // File menu, which is basically just "Quit"
@@ -29,7 +27,7 @@ Kipcalc::Kipcalc(QWidget *parent, const char *name) : KMainWindow(parent, name)
   menuBar()->insertItem("&File", file);
 
   // Simple Help menu
-  KPopupMenu *help = helpMenu( "Kipcalc\nby Kyle VanderBeek\nkylev@kylev.com", false );
+  KPopupMenu *help = helpMenu( PACKAGE " v" VERSION "\nby Kyle VanderBeek\nkylev@kylev.com", false );
   menuBar()->insertItem( "&Help", help );
 
   QWidget *main = new IPWidget(this);

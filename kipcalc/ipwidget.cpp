@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: ipwidget.cpp,v 1.20 2002/04/21 02:46:55 kylev Exp $
+  $Id: ipwidget.cpp,v 1.23 2002/05/01 01:41:33 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -14,15 +14,17 @@
 
 #include "ipwidget.h"
 
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <kdebug.h>
+
 #include <qlabel.h>
 #include <qtabwidget.h>
 #include <qvbox.h>
 #include <qgroupbox.h>
 #include <qpushbutton.h>
 #include <qstring.h>
-
-#include <stdlib.h>
-#include <iostream.h>
 
 IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
 {
@@ -41,11 +43,14 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   ipField->setTrapReturnKey(true);
   ipField->setMaxLength(15);
   connect(ipField, SIGNAL(returnPressed()), this, SLOT(slotIPUpdated()));
+  connect(ipField, SIGNAL(textChanged(const QString&)), this, SLOT(slotIPEdited(const QString&)));
 
-  QLabel *ipBinFieldLabel = new QLabel(hostBox);
-  ipBinFieldLabel->setText("Binary");
+  QLabel *ipHexFieldLabel = new QLabel("Hex", hostBox);
+  ipHexField = new QLabel(hostBox, "ipHex");
+  ipHexField->setMinimumWidth(ipHexField->fontMetrics().width("0") * 11);
 
-  ipBinField = new QLabel(hostBox, "ipbin");
+  QLabel *ipBinFieldLabel = new QLabel("Bin", hostBox);
+  ipBinField = new QLabel(hostBox, "ipBin");
   ipBinField->setMinimumWidth(ipBinField->fontMetrics().width("0") * 15);
 
   //-- NETMASK box --
@@ -57,6 +62,7 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   netmaskField->setTrapReturnKey(true);
   netmaskField->setMaxLength(15);
   connect(netmaskField, SIGNAL(returnPressed()), this, SLOT(slotNetmaskUpdated()));
+  connect(netmaskField, SIGNAL(textChanged(const QString&)), this, SLOT(slotNetmaskEdited(const QString&)));
 
   QLabel *netmaskBinFieldLabel = new QLabel("Bin", nmBox);
   netmaskBinField = new QLabel(nmBox, "NetmaskBin");
@@ -108,7 +114,16 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
 void IPWidget::slotIPUpdated()
 {
   // FIXME these return bool's, check and do dialogs
-  sn.setIP(ipField->text().latin1());
+  if (! sn.setIP(ipField->text().latin1()) ) {
+    kdDebug(4) << "SHitty" << endl;
+  }
+  updateReadFields();
+}
+
+void IPWidget::slotIPEdited(const QString &s)
+{
+  if (! sn.setIP(ipField->text().latin1()) )
+    return;
   updateReadFields();
 }
 
@@ -116,6 +131,15 @@ void IPWidget::slotNetmaskUpdated()
 {
   // FIXME these return bool's, check and do dialogs
   sn.setNetmask(netmaskField->text().latin1());
+  netmaskCIDRField->setValue(sn.getNetmaskCIDRInt());
+  updateReadFields();
+}
+
+void IPWidget::slotNetmaskEdited(const QString &s)
+{
+  kdDebug(5) << "NM edit" << s << endl;
+  if (! sn.setNetmask(netmaskField->text().latin1()))
+    return;
   netmaskCIDRField->setValue(sn.getNetmaskCIDRInt());
   updateReadFields();
 }
@@ -130,6 +154,7 @@ void IPWidget::slotCIDRUpdated(int i)
 void IPWidget::updateReadFields()
 {
   // set all fields, using implicit QString creation from const char *'s
+  ipHexField->setText(sn.getIPHex().c_str());
   ipBinField->setText(sn.getIPBinary().c_str());
 
   netmaskBinField->setText(sn.getNetmaskBinary().c_str());

@@ -238,12 +238,7 @@ CONFIG_CLEAN_FILES =
 DIST_COMMON =  Makefile.am Makefile.in
 
 
-#>- DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
-#>+ 4
-KDE_DIST=index.cache.bz2 
-
-DISTFILES= $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
-
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
@@ -357,7 +352,7 @@ maintainer-clean: maintainer-clean-am
 .NOEXPORT:
 
 #>+ 21
-index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook index.cache.bz2 
+index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook 
 	-@if test -n "$(MEINPROC)"; then echo $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; fi
 
 docs-am: index.cache.bz2
@@ -381,20 +376,20 @@ clean-docs:
 #>+ 13
 install-nls:
 	$(mkinstalldirs) $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc
-	@for base in index.docbook index.cache.bz2 ; do \
+	@for base in index.docbook ; do \
 	  echo $(INSTALL_DATA) $$base $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	  $(INSTALL_DATA) $(srcdir)/$$base $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	done
 
 uninstall-nls:
-	for base in index.docbook index.cache.bz2 ; do \
+	for base in index.docbook ; do \
 	  rm -f $(DESTDIR)$(kde_htmldir)/$(KDE_LANG)/kipcalc/$$base ;\
 	done
 
 
 #>+ 5
 distdir-nls:
-	for file in index.docbook index.cache.bz2 ; do \
+	for file in index.docbook ; do \
 	  cp $(srcdir)/$$file $(distdir); \
 	done
 

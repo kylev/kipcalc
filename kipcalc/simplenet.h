@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: simplenet.h,v 1.11 2002/04/21 02:47:00 kylev Exp $
+  $Id: simplenet.h,v 1.13 2002/04/25 00:59:59 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -15,7 +15,6 @@
 #ifndef SIMPLENET_H
 #define SIMPLENET_H
 
-#include <iostream>
 #include <string>
 #include <sys/types.h>
 
@@ -33,6 +32,7 @@ class SimpleNet {
 
   string getIP() const { return getIPDotted(); };
   string getIPDotted() const { return toDotted(_ip); };
+  string getIPHex() const { return toHex(_ip); };
   string getIPBinary() const { return toBinary(_ip); };
   string getMinHostDotted() const { return toDotted((_ip&_mask) + 1); };
   string getMaxHostDotted() const { return toDotted((_ip|~_mask) - 1); };
@@ -49,6 +49,7 @@ class SimpleNet {
 
  private:
   string toDotted(u_int32_t) const;
+  string toHex(u_int32_t) const;
   string toBinary(u_int32_t) const;
   string toCIDR(u_int32_t) const;
   int toCIDRInt(u_int32_t) const;
