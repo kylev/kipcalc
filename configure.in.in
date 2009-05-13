@@ -1,0 +1,4 @@
+#MIN_CONFIG(2)
+
+AM_INIT_AUTOMAKE(kipcalc,0.1)
+
