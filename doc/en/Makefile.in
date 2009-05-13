@@ -247,9 +247,9 @@ GZIP_ENV = --best
 all: docs-am  all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-#>- 	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
+#>- 	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
 #>+ 2
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
 	cd $(top_srcdir) && perl admin/am_edit doc/en/Makefile.in
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -351,6 +351,7 @@ maintainer-clean: maintainer-clean-am
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
 
+
 #>+ 21
 index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook 
 	-@if test -n "$(MEINPROC)"; then echo $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; $(MEINPROC) --check --cache index.cache.bz2 $(srcdir)/index.docbook; fi
@@ -395,7 +396,7 @@ distdir-nls:
 
 #>+ 5
 force-reedit:
-		cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps doc/en/Makefile
+		cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps doc/en/Makefile
 	cd $(top_srcdir) && perl admin/am_edit doc/en/Makefile.in
 
 

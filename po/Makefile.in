@@ -244,9 +244,9 @@ GZIP_ENV = --best
 all: docs-am  all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-#>- 	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps po/Makefile
+#>- 	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps po/Makefile
 #>+ 2
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps po/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps po/Makefile
 	cd $(top_srcdir) && perl admin/am_edit po/Makefile.in
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -340,12 +340,13 @@ maintainer-clean: maintainer-clean-am
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
 
+
 #>+ 2
 docs-am:
 
 #>+ 5
 force-reedit:
-		cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps po/Makefile
+		cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps po/Makefile
 	cd $(top_srcdir) && perl admin/am_edit po/Makefile.in
 
 

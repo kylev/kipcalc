@@ -1,3 +1,17 @@
+/***************************************************************************
+  Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
+  $Id: ipwidget.cpp,v 1.18 2002/04/20 20:55:58 kylev Exp $
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include "ipwidget.h"
 
 #include <qlabel.h>
@@ -117,7 +131,13 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   netmaskBinField->setMinimumWidth(netmaskBinField->fontMetrics().width("0") * 35);
   netmaskLayout->addWidget(netmaskBinField, 1, 1, AlignLeft);
 
-  // TODO add CIDR here
+  QLabel *netmaskCIDRFieldLabel = new QLabel(netmaskPage);
+  netmaskCIDRFieldLabel->setText("CIDR:");
+  netmaskLayout->addWidget(netmaskCIDRFieldLabel, 2, 0, AlignRight);
+
+  netmaskCIDRField = new QLabel(netmaskPage, "netmaskReverseField");
+  netmaskCIDRField->setMinimumWidth(netmaskCIDRField->fontMetrics().width("0") * 2);
+  netmaskLayout->addWidget(netmaskCIDRField, 2, 1, AlignLeft);
 
   QLabel *netmaskReverseFieldLabel = new QLabel(netmaskPage);
   netmaskReverseFieldLabel->setText("Reverse:");
@@ -130,47 +150,21 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
 
 void IPWidget::slotUpdated()
 {
-  char *temp;
-  cout << "Updated!" << endl;
-
   // FIXME these return bool's, check and do dialogs
-  sn.setIP(ipField->text());
-  sn.setNetmask(netmaskField->text());
+  sn.setIP(ipField->text().latin1());
+  sn.setNetmask(netmaskField->text().latin1());
 
-  if (temp = sn.getIPBinary()) {
-    ipBinField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getMinHostDotted()) {
-    minHostField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getMaxHostDotted()) {
-    maxHostField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getNetworkDotted()) {
-    networkDottedField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getNetworkBinary()) {
-    networkBinaryField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getBroadcastDotted()) {
-    broadcastDottedField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getNetmaskBinary()) {
-    netmaskBinField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getNetmaskDotted()) {
-    netmaskDottedField->setText(temp);
-    free(temp);
-  }
-  if (temp = sn.getRevMaskDotted()) {
-    netmaskReverseField->setText(temp);
-    free(temp);
-  }
+  // set all fields, using implicit QString creation from const char *'s
+  ipBinField->setText(sn.getIPBinary().c_str());
+  minHostField->setText(sn.getMinHostDotted().c_str());
+  maxHostField->setText(sn.getMaxHostDotted().c_str());
+
+  networkDottedField->setText(sn.getNetworkDotted().c_str());
+  networkBinaryField->setText(sn.getNetworkBinary().c_str());
+  broadcastDottedField->setText(sn.getBroadcastDotted().c_str());
+
+  netmaskDottedField->setText(sn.getNetmaskDotted().c_str());
+  netmaskCIDRField->setText(sn.getNetmaskCIDR().c_str());
+  netmaskBinField->setText(sn.getNetmaskBinary().c_str());
+  netmaskReverseField->setText(sn.getRevMaskDotted().c_str());
 }

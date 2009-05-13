@@ -311,9 +311,9 @@ all: docs-am  all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .cpp .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-#>- 	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
+#>- 	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
 #>+ 2
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
 	cd $(top_srcdir) && perl admin/am_edit kipcalc/Makefile.in
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -444,7 +444,6 @@ distdir: $(DISTFILES)
 	|| cp -p $$d/$$file $(distdir)/$$file || :; \
 	fi; \
 	done
-
 info-am:
 info: info-am
 dvi-am:
@@ -579,6 +578,7 @@ messages:
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
 
+
 #>+ 3
 kipcalc.moc.cpp: $(srcdir)/kipcalc.h
 	$(MOC) $(srcdir)/kipcalc.h -o kipcalc.moc.cpp
@@ -596,7 +596,7 @@ docs-am:
 
 #>+ 5
 force-reedit:
-		cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps kipcalc/Makefile
+		cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps kipcalc/Makefile
 	cd $(top_srcdir) && perl admin/am_edit kipcalc/Makefile.in
 
 

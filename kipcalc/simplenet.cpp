@@ -1,64 +1,89 @@
-#include <string.h>
+/***************************************************************************
+  Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
+  $Id: simplenet.cpp,v 1.7 2002/04/20 20:51:32 kylev Exp $
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
+#include <sstream>
 
 #include "simplenet.h"
 
-SimpleNet::SimpleNet(char* ip, char* netmask) {
-  cout << "Got called with IP " << ip << " and netmask " << netmask << endl;
+SimpleNet::SimpleNet(const string &ip, const string &netmask) {
+  // Best effort to set, not recommended since I can't return a bool
+  setIP(ip);
+  setNetmask(netmask);
 }
 
 void SimpleNet::setIP(int o1, int o2, int o3, int o4) {
   _ip = (o1 << 24) + (o2 << 16) + (o3 << 8) + (o4);
 }
 
-bool SimpleNet::setIP(const char *ip) {
-  unsigned int tempip = 0;
-  char *end = (char *)ip;
+bool SimpleNet::setIP(const string &s) {
+  u_int32_t tempip = 0;
+  string::const_iterator end = s.begin();
   int dotcount = 0;
 
   // count the number of dots (should be 3)
-  for (char *c = (char *)ip; *c != '\0'; c++)
-    if (*c == '.')
+  while (end != s.end()) {
+    if (*end == '.')
       dotcount++;
+    end++;
+  }
+
   if (dotcount != 3)
     return false;
 
+  end = s.begin();
   for (int i = 3; i >= 0; i--) {
-    int temppart = strtol(end, &end, 10);
-    cout << temppart << endl;
+    int temppart = atoi(end);
     if (temppart < 0 || temppart > 255)
       return false;
 
     tempip += temppart << (8 * i);
 
-    if (*end == '.')
+    while (end != s.end() && *end != '.')
       end++;
+    end++;
   }
-  
+
   // Note that we ignore trailing garbage if possible
   _ip = tempip;
   return true;
 }
 
-void SimpleNet::setNetmask(int nm) {
+bool SimpleNet::setNetmask(const int nm) {
+  // FIXME this should actually convert from CIDR
+  if (nm < 0 || nm > 32)
+    return false;
   _mask = nm;
+  _isCIDR = true;
+  return true;
 }
 
-bool SimpleNet::setNetmask(const char *nm) {
-  unsigned int tempmask = 0;
+bool SimpleNet::setNetmask(const string &nm) {
+  u_int32_t tempmask = 0;
   int i, j;
+  string::const_iterator c;
 
   // count the number of dots (should be 3)
   int dotcount = 0;
-  for (char *c = (char *)nm; *c != 0; c++)
+  for (c = nm.begin(); c != nm.end(); c++)
     if (*c == '.')
       dotcount++;
 
   if (dotcount == 0) {
-    // must be CIDR!
-    tempmask = atoi(nm);
+    // looks like CIDR!
+    tempmask = atoi(nm.c_str());
     if (tempmask >= 0 && tempmask <= 32) {
       _mask = ~0 << (32-tempmask);
       _isCIDR = true;
@@ -67,9 +92,9 @@ bool SimpleNet::setNetmask(const char *nm) {
       return false;
   } else if (dotcount == 3) {
     // dotted notation
-    char *end = (char *)nm;
+    c = nm.begin();
     for (i = 3; i >= 0; i--) {
-      int temppart = strtol(end, &end, 10);
+      int temppart = atoi(c);
       if (temppart < 0 || temppart > 255)
 	return false;
       
@@ -85,61 +110,66 @@ bool SimpleNet::setNetmask(const char *nm) {
 	break;
 
       // move past the dot
-      if (*end == '.')
-	end++;
+      while (c != nm.end() && *c != '.')
+	c++;
+      c++;
     }
     
     _mask = ~0 << (32-tempmask);
     _isCIDR = false;
     return true;
   }    
-  
+
   // Wrong number of dots
   return false;
 }
 
-char *SimpleNet::unsignedToDotted(unsigned int u) {
-  char *b = (char *)malloc(MAXIP);
+string SimpleNet::toDotted(u_int32_t u) const
+{
+  ostringstream oss;
   
-  if (!b) 
-    return NULL;
+  oss <<
+    ((u & 0xff000000) >> 24) << '.' <<
+    ((u & 0xff0000) >> 16) << '.' <<
+    ((u & 0xff00) >> 8) << '.' <<
+    (u & 0xff);
 
-  if (0 > snprintf(b, MAXIP, "%d.%d.%d.%d", (u & 0xff000000) >> 24, (u &0xff0000) >> 16,
-		   (u & 0xff00) >> 8, u & 0xff) ) {
-    free(b);
-    return NULL;
-  }
-  return b;
+  return oss.str();
 }
 
-char *SimpleNet::unsignedToBinary(unsigned int u) {
-  char *b = (char *)malloc(MAXIPBINARY);
-  char *p = b;
-  unsigned int slidemask = 0x80000000;
+string SimpleNet::toBinary(u_int32_t u) const
+{
+  ostringstream oss;
+  u_int32_t slidemask = 0x80000000;
 
-  if (!b) 
-    return NULL;
-  
   while (slidemask) {
-    *p = (slidemask & u) ? '1' : '0';
-    p++;
+    oss << ((slidemask & u) ? '1' : '0');
 
-    if (slidemask & 0x01010100) {
-      *p++ = '.';
-    }
+    if (slidemask & 0x01010100)
+      oss << '.';
 
     slidemask >>= 1;
   }
-  *p = '\0';
 
-  return b;
+  return oss.str();
 }
 
-ostream &operator << (ostream &of, const SimpleNet &sn) {
-  of << ((sn._ip & 0xff000000) >> 24) << '.' <<
-    ((sn._ip & 0xff0000) >> 16) << '.' <<
-    ((sn._ip & 0xff00) >> 8) << '.' <<
-    (sn._ip & 0xff) <<
-    '/' << sn._mask;
+string SimpleNet::toCIDR(u_int32_t u) const
+{
+  u_int32_t tempmask = 0x80000000;
+  int i, cidr = 0;
+  ostringstream oss;
+  
+  for (i = 0; tempmask; tempmask >>= 1)
+    if (tempmask & u)
+      cidr++;
+  
+  oss << cidr;
+  return oss.str();
+}
+
+ostream &operator << (ostream &of, const SimpleNet &sn)
+{
+  of << sn.getIPDotted() << '/' << sn.getNetmaskCIDR();
   return of;
 }

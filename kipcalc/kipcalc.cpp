@@ -1,9 +1,6 @@
 /***************************************************************************
-                          kipcalc.cpp  -  description
-                             -------------------
-    begin                : Thu Apr  4 01:23:07 PST 2002
-    copyright            : (C) 2002 by Kyle VanderBeek
-    email                : kylev@kylev.com
+  Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
+  $Id: kipcalc.cpp,v 1.13 2002/04/18 02:20:14 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -14,6 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+
 #include "kipcalc.h"
 #include "ipwidget.h"
 
