@@ -298,7 +298,12 @@ CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $
 DIST_COMMON =  Makefile.am Makefile.in
 
 
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>- DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#>+ 4
+KDE_DIST=kipcalc 
+
+DISTFILES= $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
+
 
 TAR = gtar
 GZIP_ENV = --best
@@ -444,6 +449,13 @@ distdir: $(DISTFILES)
 	|| cp -p $$d/$$file $(distdir)/$$file || :; \
 	fi; \
 	done
+ipwidget.moc.o: ipwidget.moc.cpp ipwidget.h simplenet.h
+ipwidget.o: ipwidget.cpp ipwidget.h simplenet.h
+kipcalc.moc.o: kipcalc.moc.cpp kipcalc.h ../config.h
+kipcalc.o: kipcalc.cpp kipcalc.h ../config.h ipwidget.h simplenet.h
+kipcalc_meta_unload.o: kipcalc_meta_unload.cpp
+main.o: main.cpp kipcalc.h ../config.h
+simplenet.o: simplenet.cpp simplenet.h
 
 info-am:
 info: info-am

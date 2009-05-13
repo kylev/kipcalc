@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: ipwidget.h,v 1.11 2002/05/01 01:41:39 kylev Exp $
+  $Id: ipwidget.h,v 1.13 2002/06/04 21:31:01 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,10 +38,10 @@ private:
   SimpleNet sn;
   QVBoxLayout *vbox;
   void updateReadFields();
+  void clearReadIPs();
+  void clearReadMasks();
 private slots:
-  void slotIPUpdated();
   void slotIPEdited(const QString&);
-  void slotNetmaskUpdated();
   void slotNetmaskEdited(const QString&);
   void slotCIDRUpdated(int);
 };

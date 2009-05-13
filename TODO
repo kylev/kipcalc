@@ -2,8 +2,7 @@ TODO:
 - error dialogs when you enter a bad IP or netmask
 - add context help for all displayed fields
 - convert simplenet input routines to use ostringstreams
-- add hex display
-
 
 IDEAS:
 - printing? (handy for taking to the machine room)
+- status bar to indicate why display isn't filled

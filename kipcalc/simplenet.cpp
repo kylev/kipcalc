@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: simplenet.cpp,v 1.11 2002/04/25 00:59:55 kylev Exp $
+  $Id: simplenet.cpp,v 1.13 2002/06/04 21:48:51 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -47,13 +47,14 @@ bool SimpleNet::setIP(const string &s) {
   if (dotcount != 3)
     return false;
 
-  // FIXME this parsing plugs ahead, we should check iis.bad() and/or iis.eof()
   istringstream iss(s);
   int temppart = -1;
   char dot;
   for (int i = 3; i >= 0; i--) {
     iss >> temppart;
-    if (temppart < 0 || temppart > 255)
+    if (! iss.good())
+      return false;
+    if (temppart < 0 || temppart >= 255)
       return false;
 
     tempip += temppart << (8 * i);
@@ -61,7 +62,6 @@ bool SimpleNet::setIP(const string &s) {
     iss >> dot;
     if (dot != '.')
       return false;
-    //    end++;
   }
 
   // Note that we ignore trailing garbage if possible
@@ -85,8 +85,8 @@ bool SimpleNet::setNetmask(const int nm) {
 }
 
 bool SimpleNet::setNetmask(const string &nm) {
-  u_int32_t tempmask = 0;
-  int i, j;
+  u_int32_t j, tempmask = 0;
+  int i;
 
   // count the number of dots (should be 3)
   int dotcount = 0;
@@ -98,31 +98,45 @@ bool SimpleNet::setNetmask(const string &nm) {
   if (dotcount == 0) {
     // looks like CIDR!
     iss >> tempmask;
+    if (! iss.good())
+      return false;
+
     if (tempmask >= 0 && tempmask <= 32) {
       _mask = ~0 << (32-tempmask);
       _isCIDR = true;
       return true;
     } else
       return false;
+
   } else if (dotcount == 3) {
     // dotted notation
     int temppart;
     char dot;
+
+    int state = 1; // We start where there should be all ones
     for (i = 3; i >= 0; i--) {
+      // Grab the next int, and make sure that went ok first.
       iss >> temppart;
+      if (! iss.good())
+        return false;
+
       if (temppart < 0 || temppart > 255)
 	return false;
-      
-      // check each bit of the part from left to right
-      for (j = 0x80; j > 0; j = j >> 1) 
-	if (j & temppart)
-	  tempmask++;
-	else
-	  break;
 
-      // we didn't make it to the end of the part with ones
-      if (j)
-	break;
+      // check each bit of the part from left to right
+      for (j = 0x80; j > 0; j = j >> 1) {
+        if (state) {
+          // count through 1's, else change state
+          if (j & temppart)
+            tempmask++;
+          else
+            state = 0;
+        } else {
+          // make sure not to find any 1's here
+          if (j & temppart)
+            return false;
+        }
+      }
 
       // move past the dot
       iss >> dot;
@@ -130,7 +144,11 @@ bool SimpleNet::setNetmask(const string &nm) {
         return false;
     }
     
-    _mask = ~0 << (32-tempmask);
+    // make sure we didn't get a over-big netmask
+    if (tempmask > 30)
+        return false;
+
+    _mask = ~0 << (32 - tempmask);
     _isCIDR = false;
     return true;
   } else

@@ -1,6 +1,6 @@
 /***************************************************************************
   Copyright: (C) 2002 by Kyle VanderBeek <kylev@kylev.com>
-  $Id: ipwidget.cpp,v 1.23 2002/05/01 01:41:33 kylev Exp $
+  $Id: ipwidget.cpp,v 1.25 2002/06/04 21:30:59 kylev Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,7 +30,7 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
 {
   // Main layout with a little spacing
   vbox = new QVBoxLayout(this, 3);
-
+ 
   //-- IP box --
   QGroupBox *hostBox = new QGroupBox(2, Horizontal, "Host", this, "hostBox");
   vbox->addWidget(hostBox);
@@ -42,7 +42,6 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   ipField->setContextMenuEnabled(false);
   ipField->setTrapReturnKey(true);
   ipField->setMaxLength(15);
-  connect(ipField, SIGNAL(returnPressed()), this, SLOT(slotIPUpdated()));
   connect(ipField, SIGNAL(textChanged(const QString&)), this, SLOT(slotIPEdited(const QString&)));
 
   QLabel *ipHexFieldLabel = new QLabel("Hex", hostBox);
@@ -61,7 +60,6 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   netmaskField = new KRestrictedLine(nmBox, "Netmask", "1234567890.");
   netmaskField->setTrapReturnKey(true);
   netmaskField->setMaxLength(15);
-  connect(netmaskField, SIGNAL(returnPressed()), this, SLOT(slotNetmaskUpdated()));
   connect(netmaskField, SIGNAL(textChanged(const QString&)), this, SLOT(slotNetmaskEdited(const QString&)));
 
   QLabel *netmaskBinFieldLabel = new QLabel("Bin", nmBox);
@@ -69,7 +67,7 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   netmaskBinField->setMinimumWidth(netmaskBinField->fontMetrics().width("0") * 35);
 
   QLabel *netmaskCIDRFieldLabel = new QLabel("CIDR", nmBox);
-  netmaskCIDRField = new QSpinBox(1, 31, 1, nmBox, "netmaskCIDRField");
+  netmaskCIDRField = new QSpinBox(1, 30, 1, nmBox, "netmaskCIDRField");
   connect(netmaskCIDRField, SIGNAL(valueChanged(int)),
           this, SLOT(slotCIDRUpdated(int)));
 
@@ -102,44 +100,25 @@ IPWidget::IPWidget(QWidget *parent) : QWidget(parent)
   broadcastDottedField->setMinimumWidth(broadcastDottedField->fontMetrics().width("0") * 15);
 
   // Trigger defaults
-  sn.setIP("192.168.1.1");
-  sn.setNetmask(24);
   ipField->setText("192.168.1.1");
-  netmaskField->setText(sn.getNetmaskDotted().c_str());
-  netmaskCIDRField->setValue(sn.getNetmaskCIDRInt());
-  updateReadFields();
-}
-
-
-void IPWidget::slotIPUpdated()
-{
-  // FIXME these return bool's, check and do dialogs
-  if (! sn.setIP(ipField->text().latin1()) ) {
-    kdDebug(4) << "SHitty" << endl;
-  }
-  updateReadFields();
+  netmaskField->setText("255.255.255.0");
 }
 
 void IPWidget::slotIPEdited(const QString &s)
 {
-  if (! sn.setIP(ipField->text().latin1()) )
+  if (! sn.setIP(ipField->text().latin1()) ) {
+    clearReadIPs();
     return;
-  updateReadFields();
-}
-
-void IPWidget::slotNetmaskUpdated()
-{
-  // FIXME these return bool's, check and do dialogs
-  sn.setNetmask(netmaskField->text().latin1());
-  netmaskCIDRField->setValue(sn.getNetmaskCIDRInt());
+  }
   updateReadFields();
 }
 
 void IPWidget::slotNetmaskEdited(const QString &s)
 {
-  kdDebug(5) << "NM edit" << s << endl;
-  if (! sn.setNetmask(netmaskField->text().latin1()))
+  if (! sn.setNetmask(netmaskField->text().latin1())) {
+    clearReadMasks();
     return;
+  }
   netmaskCIDRField->setValue(sn.getNetmaskCIDRInt());
   updateReadFields();
 }
@@ -165,4 +144,30 @@ void IPWidget::updateReadFields()
   networkDottedField->setText(sn.getNetworkDotted().c_str());
   networkBinaryField->setText(sn.getNetworkBinary().c_str());
   broadcastDottedField->setText(sn.getBroadcastDotted().c_str());
+}
+
+void IPWidget::clearReadIPs()
+{
+  // clear fields that are not defined w/o a valid IP
+  ipHexField->clear();
+  ipBinField->clear();
+
+  minHostField->clear();
+  maxHostField->clear();
+  networkDottedField->clear();
+  networkBinaryField->clear();
+  broadcastDottedField->clear();
+}
+
+void IPWidget::clearReadMasks()
+{
+  // set all netmask fields to empty strings
+  netmaskBinField->clear();
+  netmaskReverseField->clear();
+
+  minHostField->clear();
+  maxHostField->clear();
+  networkDottedField->clear();
+  networkBinaryField->clear();
+  broadcastDottedField->clear();
 }
