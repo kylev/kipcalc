@@ -1,45 +1,56 @@
 #!/usr/bin/python
 
-import sys
-
 from PyKDE4 import kdecore
 from PyKDE4 import kdeui
 
-from PyQt4.QtGui import QLabel, QGroupBox
+from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtGui import QAction, QLabel, QGroupBox
 
 
 class IPWidget(kdeui.KVBox):
     def __init__(self, parent=None):
         super(IPWidget, self).__init__(parent)
 
-        host_box = QGroupBox("Host", self)
-        QLabel('Dot', host_box)
-        dot_entry = kdeui.KRestrictedLine(host_box)
-        dot_entry.setValidChars('1234567890.')
+        self.host_box = QGroupBox("Host", self)
+        # TODO Lay all the stuff out.
+        #QLabel('Dot', self.host_box)
+        #dot_entry = kdeui.KRestrictedLine(host_box)
+        #dot_entry.setValidChars('1234567890.')
 
-        nm_box = QGroupBox("NetMask", self)
+        self.nm_box = QGroupBox("NetMask", self)
 
 
 class Kipcalc(kdeui.KMainWindow):
     def __init__ (self):
         super(Kipcalc, self).__init__()
-        #kdeui.KMainWindow.__init__(self)
-        self.help = QLabel(kdecore.i18n("Some Help"), self)
+        self.resize(640, 480)
 
-        menu = self.menuBar()
-
-        f_menu = kdeui.KMenu("File", menu)
-        f_menu.addAction("Quit")
-
+        self.create_actions()
+        self.create_menus()
         self.setCentralWidget(IPWidget(self))
 
-    def blah(self):
-        self.resize(640, 480)
-        label = QLabel("This is a simple PyKDE4 program", self)
-        label.setGeometry (10, 10, 200, 20)
+    def print_(self):
+        pass
+
+    def create_actions(self):
+        self.action_quit = QAction('&Quit', self)
+        self.action_quit.setIcon(kdeui.KIcon('exit'))
+        self.action_quit.setShortcut(self.tr('Ctrl+Q'))
+        self.connect(self.action_quit, SIGNAL('triggered()'), self.close)
+
+        self.action_print = QAction('&Print', self)
+        #self.action_print.setIcon(kdeui.KIcon('print'))
+        self.connect(self.action_quit, SIGNAL('triggered()'), self.print_)
+
+    def create_menus(self):
+        self.file_menu = self.menuBar().addMenu("&File")
+        self.file_menu.addAction(self.action_quit)
+        self.file_menu.addAction(self.action_print)
 
 
 if '__main__' == __name__:
+    import sys
+
     appName = "kipcalc"
     catalog = ""
     programName = kdecore.ki18n("kipcalc")
@@ -49,14 +60,15 @@ if '__main__' == __name__:
     copyright = kdecore.ki18n("(c) 2009 Kyle VanderBeek")
     text = kdecore.ki18n("none")
     homePage = "www.kylev.com"
-    bugEmail = "kylev@kylev..com"
+    bugEmail = "kylev@kylev.com"
 
     aboutData   = kdecore.KAboutData(appName, catalog, programName, version,
                                      description, license, copyright, text,
                                      homePage, bugEmail)
     kdecore.KCmdLineArgs.init(sys.argv, aboutData)
-    app = kdeui.KApplication()
 
+    app = kdeui.KApplication()
     mainWindow = Kipcalc()
     mainWindow.show()
-    app.exec_()
+    app.connect(app, SIGNAL("lastWindowClosed()"), app.quit)
+    sys.exit(app.exec_())
